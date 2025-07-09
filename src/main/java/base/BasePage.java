@@ -18,7 +18,6 @@ import org.testng.ITestContext;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import utilities.DbManager;
-import utilities.ExcelReader;
 import utilities.MonitoringMail;
 import utilities.ScreenshotSoftAssert;
 
@@ -31,25 +30,16 @@ import java.util.Properties;
 public class BasePage {
 
 
-    //Webdriver - donw
-//     Properties - done
-//     Logs
-//     ExtentReports
-//     DB
-//     Excel
-//     Mail
-//     jenkins
-
     public WebDriver driver;
-    private static Properties config = new Properties();
-    private FileInputStream fis;
-    public static ExcelReader excel = new ExcelReader("src/test/resources/excel/TestData.xlsx");
-    public WebDriverWait wait;
-    public WebElement dropdown;
-    protected static final Logger log = LogManager.getLogger(BasePage.class);
     public String browser;
-    public MonitoringMail mail = new MonitoringMail();
+
+    public WebDriverWait wait;
     public ScreenshotSoftAssert softAssert;
+
+    protected static final Logger log = LogManager.getLogger(BasePage.class);
+    public MonitoringMail mail = new MonitoringMail();
+    private static Properties config = new Properties();
+
 
 
     @BeforeMethod
@@ -58,7 +48,7 @@ public class BasePage {
         if (driver == null) {
 
             // load config file for browser and url
-            config = loadConfigFile();
+            config = loadConfigFile(Constant.CONFIG_FILE_LOCATION);
 
             // to get browser name from the jenkins job parameters else from the property file
             if (System.getenv("browser") != null && !System.getenv("browser").isEmpty()) {
@@ -67,7 +57,7 @@ public class BasePage {
                 browser = config.getProperty("browser");
             }
 
-            // load webdriver based on the browser
+            // load webDriver based on the browser
             driver = initBrowser(browser);
             context.setAttribute("driver", driver);
 
@@ -85,17 +75,23 @@ public class BasePage {
         }
 
     }
+
     @AfterMethod
     public void tearDown() {
 
-        // get softAssert output
-        softAssert.assertAll();
-
-        if (driver != null) {
-            driver.quit();
+        try {
+            softAssert.assertAll();
+        } catch (AssertionError e) {
+            log.error("Soft assert failures occurred: " + e.getMessage());
+            throw e; // Re-throw so TestNG marks test as failed
+        } finally {
+            if (driver != null) {
+                driver.quit();
+            }
+            log.debug("Test execution completed!!!");
         }
-        log.debug("test execution completed !!!");
     }
+
     private WebDriver initBrowser(String brow) {
 
         WebDriver webDriver = null;
@@ -139,11 +135,11 @@ public class BasePage {
         return webDriver;
     }
 
-    private Properties loadConfigFile() {
+    private Properties loadConfigFile(String filePath) {
 
         try {
             Properties configFile = new Properties();
-            fis = new FileInputStream(Constant.configFileLocation);
+            FileInputStream fis = new FileInputStream(filePath);
             configFile.load(fis);
             log.debug("config file loaded !!! ");
             return configFile;
@@ -165,8 +161,6 @@ public class BasePage {
             e.printStackTrace();
         }
     }
-
-
 
     public void click(WebElement element) {
 
@@ -193,7 +187,6 @@ public class BasePage {
         }
 
     }
-
 
     public void select(WebElement element, String value) {
 

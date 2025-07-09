@@ -28,8 +28,8 @@ public class CustomListeners extends BasePage implements ITestListener, ISuiteLi
         log.error("Test failed: " + result.getName());
         Reporter.log("Capturing screenshot...");
 
-        WebDriver driver = (WebDriver) result.getTestContext().getAttribute("driver");
-        AllureUtil.captureScreenShot(driver);
+//        WebDriver driver = (WebDriver) result.getTestContext().getAttribute("driver");
+//        AllureUtil.captureScreenShot(driver);
     }
 
     public void onTestSuccess(ITestResult result) {
