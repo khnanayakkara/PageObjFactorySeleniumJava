@@ -1,4 +1,4 @@
-package com.khn.testcases;
+package com.khn.testcases.login;
 
 import base.BasePage;
 import org.testng.annotations.Test;
@@ -11,7 +11,7 @@ public class LoginTest extends BasePage {
 
 
     @Test(dataProvider = "testData", dataProviderClass = DataUtil.class)
-    @JsonFile("src/test/resources/testData/incorrectUserNamePassword.json")
+    @JsonFile("src/test/resources/testData/login/incorrectUserNamePassword.json")
     public void verifyIncorrectUernameAndPassword(HashMap<String, String> data) {
         pages.loginPage.enterUsername(data.get("username"));
         pages.loginPage.enterPassword(data.get("password"));
@@ -20,7 +20,7 @@ public class LoginTest extends BasePage {
     }
 
     @Test(dataProvider = "testData", dataProviderClass = DataUtil.class)
-    @JsonFile("src/test/resources/testData/missingUsernameAndPassword.json")
+    @JsonFile("src/test/resources/testData/login/missingUsernameAndPassword.json")
     public void missingUsernameAndPassword(HashMap<String, String> data) {
         pages.loginPage.enterUsername(data.get("username"));
         pages.loginPage.enterPassword(data.get("password"));
