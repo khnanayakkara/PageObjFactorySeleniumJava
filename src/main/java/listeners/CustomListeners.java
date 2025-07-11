@@ -69,7 +69,7 @@ public class CustomListeners extends BasePage implements ITestListener, ISuiteLi
     }
 
     public void generateAllureReport() {
-        log.debug("Generating Allure Report...!!!");
+        log.info("Generating Allure Report...!!!");
 
         try {
             ProcessBuilder processBuilder = new ProcessBuilder("allure", "generate", "--clean");
@@ -78,14 +78,14 @@ public class CustomListeners extends BasePage implements ITestListener, ISuiteLi
             BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
             String line;
             while ((line = reader.readLine()) != null) {
-                log.debug("[Allure CLI] " + line);
+                log.info("[Allure CLI] " + line);
             }
             int exitCode = process.waitFor();
             if (exitCode == 0) {
-                log.debug("Allure report generated successfully...!!!");
-                log.debug("Allure Report : http://" + InetAddress.getLocalHost().getHostAddress() + ":63342/" + Paths.get("").toAbsolutePath().getFileName() + "/allure-report/index.html");
+                log.info("Allure report generated successfully...!!!");
+                log.info("Allure Report : http://" + InetAddress.getLocalHost().getHostAddress() + ":63342/" + Paths.get("").toAbsolutePath().getFileName() + "/allure-report/index.html");
             } else {
-                log.debug("Allure report generation failed. Exit code: " + exitCode);
+                log.info("Allure report generation failed. Exit code: " + exitCode);
             }
 
         } catch (IOException | InterruptedException e) {

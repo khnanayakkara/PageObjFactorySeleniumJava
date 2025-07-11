@@ -7,7 +7,7 @@
     </listeners>
     <test verbose="2" name="flight Test">
         <classes>
-            <class name="com.khn.testcases.LoginTest"/>
+            <class name="com.khn.testcases.login.LoginTest"/>
         </classes>
     </test>
 </suite>

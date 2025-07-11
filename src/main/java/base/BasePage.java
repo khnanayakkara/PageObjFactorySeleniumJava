@@ -77,14 +77,14 @@ public class BasePage {
 
             // init webDriver wait
             wait = new WebDriverWait(driver, Duration.ofSeconds(10));
-            log.debug("WebDriver wait default time set to : " + Constant.ELEMENT_LOAD_TIMEOUT);
+            log.info("WebDriver wait default time set to : " + Constant.ELEMENT_LOAD_TIMEOUT);
 
             // load softAssert
             softAssert = new ScreenshotSoftAssert(driver);
 
             // load web url
             driver.get(config.getProperty("testsiteurl"));
-            log.debug("Navigated to : " + config.getProperty("testsiteurl"));
+            log.info("Navigated to : " + config.getProperty("testsiteurl"));
 
             driver.manage().window().maximize();
 
@@ -107,7 +107,7 @@ public class BasePage {
                 driver.quit();
                 driver = null;
             }
-            log.debug("Test execution completed!!!");
+            log.info("Test execution completed!!!");
         }
     }
 
@@ -123,32 +123,32 @@ public class BasePage {
             options.addArguments("--disable-save-password-bubble");
             options.addArguments("--incognito");
             webDriver = new ChromeDriver(options);
-            log.debug("chrome launched !!! ");
+            log.info("chrome launched !!! ");
 
         } else if (brow.equalsIgnoreCase("firefox")) {
             WebDriverManager.firefoxdriver().setup();
             webDriver = new FirefoxDriver();
-            log.debug("firefox launched !!! ");
+            log.info("firefox launched !!! ");
 
         } else if (brow.equalsIgnoreCase("edge")) {
             WebDriverManager.edgedriver().setup();
             webDriver = new EdgeDriver();
-            log.debug("edge launched !!! ");
+            log.info("edge launched !!! ");
 
         } else if (brow.equalsIgnoreCase("safari")) {
             // No setup needed for SafariDriver
             webDriver = new SafariDriver();
-            log.debug("safari launched !!! ");
+            log.info("safari launched !!! ");
 
         } else if (brow.equalsIgnoreCase("opera")) {
             WebDriverManager.operadriver().setup();
             ;
-            log.debug("opera launched !!! ");
+            log.info("opera launched !!! ");
         } else if (brow.equalsIgnoreCase("ie")) {
             // No setup needed for SafariDriver
             WebDriverManager.iedriver().setup();
             webDriver = new InternetExplorerDriver();
-            log.debug("internet explorer launched !!! ");
+            log.info("internet explorer launched !!! ");
         }
 
         return webDriver;
@@ -160,7 +160,7 @@ public class BasePage {
             Properties configFile = new Properties();
             FileInputStream fis = new FileInputStream(filePath);
             configFile.load(fis);
-            log.debug("config file loaded !!! ");
+            log.info("config file loaded !!! ");
             return configFile;
 
         } catch (IOException e) {
