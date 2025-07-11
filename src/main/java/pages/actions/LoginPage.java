@@ -39,6 +39,10 @@ public class LoginPage extends BasePage {
     public void verifyErrorMessage(String loginError) {
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
         wait.until(ExpectedConditions.visibilityOf(login.errorMsg));
-        Assert.assertEquals(loginError, login.errorMsg.getText());
+        Assert.assertEquals( login.errorMsg.getText(),loginError);
+    }
+
+    public void verifyLoginButtonDisabled() {
+        Assert.assertFalse(login.loginBtn.isEnabled());
     }
 }
