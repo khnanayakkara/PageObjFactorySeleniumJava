@@ -1,6 +1,7 @@
 package base;
 
 import io.github.bonigarcia.wdm.WebDriverManager;
+import org.apache.commons.io.FileUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.WebDriver;
@@ -11,20 +12,24 @@ import org.openqa.selenium.edge.EdgeDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.ie.InternetExplorerDriver;
 import org.openqa.selenium.safari.SafariDriver;
+import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 import org.testng.ITestContext;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.BeforeSuite;
 import utilities.DbManager;
 import utilities.MonitoringMail;
 import utilities.ScreenshotSoftAssert;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.sql.SQLException;
+import java.time.Duration;
 import java.util.Properties;
 
 public class BasePage {
@@ -39,10 +44,16 @@ public class BasePage {
     protected static final Logger log = LogManager.getLogger(BasePage.class);
     public MonitoringMail mail = new MonitoringMail();
     private static Properties config = new Properties();
+    public Pages pages;
 
+    @BeforeSuite
+    public void cleanFolders() {
+        deleteDir("allure-results");
+        deleteDir("allure-report");
+        log.info("Allure folders cleaned!");
+    }
 
-
-    @BeforeMethod
+    @BeforeMethod(alwaysRun = true)
     public void setup(Method method, ITestContext context) {
 
         if (driver == null) {
@@ -61,6 +72,13 @@ public class BasePage {
             driver = initBrowser(browser);
             context.setAttribute("driver", driver);
 
+            //load page objects
+            pages = new Pages(driver);
+
+            // init webDriver wait
+            wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+            log.debug("WebDriver wait default time set to : " + Constant.ELEMENT_LOAD_TIMEOUT);
+
             // load softAssert
             softAssert = new ScreenshotSoftAssert(driver);
 
@@ -76,7 +94,7 @@ public class BasePage {
 
     }
 
-    @AfterMethod
+    @AfterMethod(alwaysRun = true)
     public void tearDown() {
 
         try {
@@ -87,6 +105,7 @@ public class BasePage {
         } finally {
             if (driver != null) {
                 driver.quit();
+                driver = null;
             }
             log.debug("Test execution completed!!!");
         }
@@ -160,6 +179,19 @@ public class BasePage {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
+    }
+
+
+    private void deleteDir(String filePath) {
+
+        File dir = new File(filePath);
+        try {
+            FileUtils.deleteDirectory(dir);
+            log.info("Deleted directory: " + dir.getAbsolutePath());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
     }
 
     public void click(WebElement element) {

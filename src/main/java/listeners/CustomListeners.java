@@ -9,7 +9,6 @@ import org.testng.*;
 import utilities.AllureUtil;
 import utilities.MonitoringMail;
 import utilities.TestConfig;
-import utilities.TestUtil;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -20,16 +19,15 @@ import java.nio.file.Paths;
 
 public class CustomListeners extends BasePage implements ITestListener, ISuiteListener {
 
-    private Log log = LogFactory.getLog(CustomListeners.class);
-
+    public Log log = LogFactory.getLog(CustomListeners.class);
 
     public void onTestFailure(ITestResult result) {
 
         log.error("Test failed: " + result.getName());
         Reporter.log("Capturing screenshot...");
 
-//        WebDriver driver = (WebDriver) result.getTestContext().getAttribute("driver");
-//        AllureUtil.captureScreenShot(driver);
+        WebDriver driver = (WebDriver) result.getTestContext().getAttribute("driver");
+        AllureUtil.captureScreenShot(driver);
     }
 
     public void onTestSuccess(ITestResult result) {
@@ -43,13 +41,13 @@ public class CustomListeners extends BasePage implements ITestListener, ISuiteLi
 
     }
 
-    private void generateEmail() {
+    public void generateEmail() {
         MonitoringMail mail = new MonitoringMail();
         String messageBody = null;
         try {
             ;
 //            messageBody = "http://" + InetAddress.getLocalHost().getHostAddress() + ":63342/SeleniumTestNG/selenium-testng/allure-report/index.html";
-            messageBody = "Allure Report: http://" + InetAddress.getLocalHost().getHostAddress() + "SeleniumTestNG/selenium-testng/allure-report/index.html?";
+            messageBody = "Allure Report: http://" + InetAddress.getLocalHost().getHostAddress() + java.nio.file.Paths.get("").toAbsolutePath().getFileName()+"/selenium-testng/allure-report/index.html?";
         } catch (UnknownHostException e) {
             throw new RuntimeException(e);
         }
@@ -70,7 +68,7 @@ public class CustomListeners extends BasePage implements ITestListener, ISuiteLi
         }
     }
 
-    private void generateAllureReport() {
+    public void generateAllureReport() {
         log.debug("Generating Allure Report...!!!");
 
         try {

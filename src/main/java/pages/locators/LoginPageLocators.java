@@ -5,10 +5,19 @@ import org.openqa.selenium.support.FindAll;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.FindBys;
 
-public class HomePageLocators {
+public class LoginPageLocators {
 
-    @FindBy(css = "span.xvs91rp.xwhw2v2")
-    public WebElement loginWithFb;
+    @FindBy(xpath = "//form[@id='loginForm']//input[@name='username']")
+    public WebElement username;
+
+    @FindBys({
+            @FindBy(id = "loginForm"),
+            @FindBy(name = "password"),
+    })
+    public WebElement password;
+
+   @FindBy(xpath = "//div[contains(text(),'Log in')]/parent::button")
+   public WebElement loginBtn;
 
     // find elemnt with either locators
     @FindAll({
@@ -17,12 +26,16 @@ public class HomePageLocators {
     })
     public WebElement hotelTab;
 
-    // find elemnt with first and find the send one in it
+    // find element with first and find the send one in it
     @FindBys({
             @FindBy(xpath = "//span[normalize-space(text())='Cars']"),
             @FindBy(id = "Hotels"),
     })
     public WebElement carsTab;
+
+    @FindBy(css = "#loginForm span div")
+    public WebElement errorMsg;
+
 
 
 }

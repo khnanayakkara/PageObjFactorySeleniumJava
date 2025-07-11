@@ -3,6 +3,7 @@
 <suite name="Page object tests">
     <listeners>
         <listener class-name="listeners.CustomListeners"/>
+        <listener class-name="listeners.RetryListener"/>
     </listeners>
     <test verbose="2" name="flight Test">
         <classes>

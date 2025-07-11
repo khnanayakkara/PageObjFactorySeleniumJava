@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Map;
 
 public class DataUtil {
-    @DataProvider(name = "userData")
+    @DataProvider(name = "testData")
     public static Object[][] getUserData(Method method) {
         // Read @JsonFile annotation on the test method
         JsonFile jsonFile = method.getAnnotation(JsonFile.class);
