@@ -33,7 +33,16 @@ public class TestUtil extends BasePage {
 
     }
 
+    public static void deleteDir(String filePath) {
 
+        File dir = new File(filePath);
+        try {
+            FileUtils.deleteDirectory(dir);
+            log.info("Deleted directory: " + dir.getAbsolutePath());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
+    }
 
 }
