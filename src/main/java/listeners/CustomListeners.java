@@ -46,14 +46,30 @@ public class CustomListeners extends BasePage implements ITestListener, ISuiteLi
         TestUtil.deleteDir("allure-report");
         log.info("Allure folders cleaned!");
     }
+
     public void onFinish(ISuite suite) {
         log.info("🏁 Suite finished: " + suite.getName());
 
         // Generate allure report
         log.info("Generating Allure Report...");
         generateAllureReport();
+
         // send email
 //        generateEmail();
+
+    }
+
+    private boolean isAllureAvailable() {
+        try {
+            ProcessBuilder pb = new ProcessBuilder("allure", "--version");
+            pb.redirectErrorStream(true);
+            Process process = pb.start();
+            int exitCode = process.waitFor();
+            return exitCode == 0;
+        } catch (IOException | InterruptedException e) {
+            log.warn("Allure CLI check failed: " + e.getMessage());
+            return false;
+        }
 
     }
 
@@ -86,7 +102,11 @@ public class CustomListeners extends BasePage implements ITestListener, ISuiteLi
     }
 
     private void generateAllureReport() {
-        log.info("Generating Allure Report...!!!");
+
+        if (!isAllureAvailable()) {
+            log.warn("⚠️ Allure CLI not found! Skipping report generation.");
+            return;
+        }
 
         try {
             ProcessBuilder processBuilder = new ProcessBuilder("allure", "generate", "--clean");
