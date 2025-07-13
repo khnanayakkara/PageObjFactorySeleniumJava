@@ -5,10 +5,14 @@ import jakarta.mail.MessagingException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openqa.selenium.WebDriver;
-import org.testng.*;
+import org.testng.ISuite;
+import org.testng.ISuiteListener;
+import org.testng.ITestListener;
+import org.testng.ITestResult;
 import utilities.AllureUtil;
 import utilities.MonitoringMail;
 import utilities.TestConfig;
+import utilities.TestUtil;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -23,35 +27,47 @@ public class CustomListeners extends BasePage implements ITestListener, ISuiteLi
 
     public void onTestFailure(ITestResult result) {
 
-        log.error("Test failed: " + result.getName());
-        Reporter.log("Capturing screenshot...");
-
+        log.error("❌ Test FAILED: " + result.getName());
         WebDriver driver = (WebDriver) result.getTestContext().getAttribute("driver");
         AllureUtil.captureScreenShot(driver);
     }
 
     public void onTestSuccess(ITestResult result) {
+        log.info("✅ Test PASSED: " + result.getName());
     }
 
+    public void onTestSkipped(ITestResult result) {
+        log.warn("⚠️ Test SKIPPED: " + result.getName());
+    }
+
+    public void onStart(ISuite suite) {
+        log.info("🚀 Suite started: " + suite.getName());
+        TestUtil.deleteDir("allure-results");
+        TestUtil.deleteDir("allure-report");
+        log.info("Allure folders cleaned!");
+    }
     public void onFinish(ISuite suite) {
+        log.info("🏁 Suite finished: " + suite.getName());
+
         // Generate allure report
+        log.info("Generating Allure Report...");
         generateAllureReport();
         // send email
 //        generateEmail();
 
     }
 
-    public void generateEmail() {
+    private void generateEmail() {
         MonitoringMail mail = new MonitoringMail();
-        String messageBody = null;
+        String messageBody;
         try {
-            ;
-//            messageBody = "http://" + InetAddress.getLocalHost().getHostAddress() + ":63342/SeleniumTestNG/selenium-testng/allure-report/index.html";
-            messageBody = "Allure Report: http://" + InetAddress.getLocalHost().getHostAddress() + java.nio.file.Paths.get("").toAbsolutePath().getFileName()+"/selenium-testng/allure-report/index.html?";
+            String hostAddress = InetAddress.getLocalHost().getHostAddress();
+            String projectName = Paths.get("").toAbsolutePath().getFileName().toString();
+            messageBody = "Allure Report: http://" + hostAddress + "/" + projectName + "/allure-report/index.html";
+            log.info("Email message body: " + messageBody);
         } catch (UnknownHostException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("Failed to get host address for email body", e);
         }
-        System.out.println(messageBody);
 
         try {
             mail.sendMail(
@@ -63,12 +79,13 @@ public class CustomListeners extends BasePage implements ITestListener, ISuiteLi
                     TestConfig.attachmentPath,
                     TestConfig.attachmentName
             );
+            log.info("📧 Email sent successfully!");
         } catch (MessagingException e) {
-            throw new RuntimeException(e);
+            log.error("Failed to send email: ", e);
         }
     }
 
-    public void generateAllureReport() {
+    private void generateAllureReport() {
         log.info("Generating Allure Report...!!!");
 
         try {
@@ -82,10 +99,12 @@ public class CustomListeners extends BasePage implements ITestListener, ISuiteLi
             }
             int exitCode = process.waitFor();
             if (exitCode == 0) {
-                log.info("Allure report generated successfully...!!!");
-                log.info("Allure Report : http://" + InetAddress.getLocalHost().getHostAddress() + ":63342/" + Paths.get("").toAbsolutePath().getFileName() + "/allure-report/index.html");
+                String reportUrl = "http://" + InetAddress.getLocalHost().getHostAddress() +
+                        ":63342/" + Paths.get("").toAbsolutePath().getFileName() + "/allure-report/index.html";
+                log.info("✅ Allure report generated successfully!");
+                log.info("📄 Allure Report: " + reportUrl);
             } else {
-                log.info("Allure report generation failed. Exit code: " + exitCode);
+                log.info("❌ Allure report generation failed. Exit code: " + exitCode);
             }
 
         } catch (IOException | InterruptedException e) {

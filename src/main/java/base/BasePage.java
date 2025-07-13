@@ -46,13 +46,6 @@ public class BasePage {
     private static Properties config = new Properties();
     public Pages pages;
 
-    @BeforeSuite
-    public void cleanFolders() {
-        deleteDir("allure-results");
-        deleteDir("allure-report");
-        log.info("Allure folders cleaned!");
-    }
-
     @BeforeMethod(alwaysRun = true)
     public void setup(Method method, ITestContext context) {
 
@@ -181,18 +174,6 @@ public class BasePage {
         }
     }
 
-
-    private void deleteDir(String filePath) {
-
-        File dir = new File(filePath);
-        try {
-            FileUtils.deleteDirectory(dir);
-            log.info("Deleted directory: " + dir.getAbsolutePath());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-    }
 
     public void click(WebElement element) {
 
