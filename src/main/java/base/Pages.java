@@ -7,7 +7,7 @@ public class Pages {
 
     public LoginPage loginPage;
 
-    public Pages(WebDriver driver){
-        loginPage = new LoginPage(driver);
+    public Pages(){
+        loginPage = new LoginPage();
     }
 }

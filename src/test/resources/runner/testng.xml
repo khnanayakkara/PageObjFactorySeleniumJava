@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd">
-<suite name="Page object tests">
+<suite name="login tests">
     <listeners>
         <listener class-name="listeners.CustomListeners"/>
         <listener class-name="listeners.RetryListener"/>
     </listeners>
-    <test verbose="2" name="flight Test">
+    <test verbose="2" name="login Test">
         <classes>
             <class name="com.khn.testcases.login.LoginTest"/>
         </classes>

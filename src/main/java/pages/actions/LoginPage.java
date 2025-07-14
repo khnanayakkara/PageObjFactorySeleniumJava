@@ -14,10 +14,9 @@ public class LoginPage extends BasePage {
 
     public LoginPageLocators login;
 
-    public LoginPage(WebDriver driver) {
-        this.driver = driver;
+    public LoginPage() {
         this.login = new LoginPageLocators();
-        PageFactory.initElements(driver, this.login);
+        PageFactory.initElements(getDriver(), this.login);
     }
 
     public void enterUsername(String userName) {
@@ -37,7 +36,7 @@ public class LoginPage extends BasePage {
     }
 
     public void verifyErrorMessage(String loginError) {
-        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        WebDriverWait wait = new WebDriverWait(getDriver(), Duration.ofSeconds(10));
         wait.until(ExpectedConditions.visibilityOf(login.errorMsg));
         Assert.assertEquals( login.errorMsg.getText(),loginError);
     }
