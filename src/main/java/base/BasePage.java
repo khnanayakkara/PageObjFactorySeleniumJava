@@ -11,6 +11,8 @@ import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.edge.EdgeDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.ie.InternetExplorerDriver;
+import org.openqa.selenium.remote.DesiredCapabilities;
+import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.safari.SafariDriver;
 import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
@@ -25,6 +27,8 @@ import utilities.ScreenshotSoftAssert;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.lang.reflect.Method;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.sql.SQLException;
 import java.time.Duration;
 import java.util.Properties;
@@ -42,6 +46,7 @@ public class BasePage {
     public MonitoringMail mail = new MonitoringMail();
     private static Properties config = new Properties();
     public Pages pages;
+    private String runMode;
 
     @BeforeMethod(alwaysRun = true)
     public void setup(Method method, ITestContext context) {
@@ -55,9 +60,21 @@ public class BasePage {
         } else {
             browser = config.getProperty("browser");
         }
+        // get run mode
+
+        if (System.getenv("runmode") != null && !System.getenv("runmode").isEmpty()) {
+            runMode = System.getenv("runmode");
+        } else {
+            runMode = config.getProperty("runmode");
+        }
 
         // Init driver
-        WebDriver localDriver = initBrowser(browser);
+        WebDriver localDriver;
+        if (runMode.equalsIgnoreCase("grid")) {
+            localDriver = initGridDriver(browser);
+        } else {
+            localDriver = initLocalDriver(browser);
+        }
         setDriver(localDriver);
         context.setAttribute("driver", getDriver());
 
@@ -110,10 +127,9 @@ public class BasePage {
         driver.set(driverInstance);
     }
 
-    private WebDriver initBrowser(String brow) {
+    private WebDriver initLocalDriver(String brow) {
 
         WebDriver webDriver = null;
-
         if (brow.equals("chrome")) {
             WebDriverManager.chromedriver().setup();
             ChromeOptions options = new ChromeOptions();
@@ -151,6 +167,30 @@ public class BasePage {
         }
 
         return webDriver;
+    }
+
+    private WebDriver initGridDriver(String brow) {
+        DesiredCapabilities capabilities = new DesiredCapabilities();
+
+        if (brow.equalsIgnoreCase("chrome")) {
+            capabilities.setBrowserName("chrome");
+        } else if (brow.equalsIgnoreCase("firefox")) {
+            capabilities.setBrowserName("firefox");
+        } else if (brow.equalsIgnoreCase("edge")) {
+            capabilities.setBrowserName("MicrosoftEdge");
+        } else {
+            throw new RuntimeException("Browser not supported for Grid: " + brow);
+        }
+
+        try {
+            String gridUrl = config.getProperty("gridUrl");
+            RemoteWebDriver remoteDriver = new RemoteWebDriver(new URL(gridUrl), capabilities);
+            log.info(brow + " launched on Selenium Grid at: " + gridUrl);
+            return remoteDriver;
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+            throw new RuntimeException("Grid URL is invalid or Selenium Grid not running");
+        }
     }
 
     private Properties loadConfigFile(String filePath) {
