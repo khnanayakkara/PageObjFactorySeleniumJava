@@ -20,6 +20,7 @@ import org.testng.Assert;
 import org.testng.ITestContext;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
+import utilities.AllureUtil;
 import utilities.DbManager;
 import utilities.MonitoringMail;
 import utilities.ScreenshotSoftAssert;
@@ -77,6 +78,7 @@ public class BasePage {
         }
         setDriver(localDriver);
         context.setAttribute("driver", getDriver());
+        AllureUtil.attachBrowserDetailsAndEnvFile(getDriver(),runMode);
 
         //load page objects
         pages = new Pages();
