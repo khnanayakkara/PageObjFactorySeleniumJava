@@ -2,7 +2,6 @@ package base;
 
 import constants.Constant;
 import io.github.bonigarcia.wdm.WebDriverManager;
-import org.apache.commons.io.FileUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.WebDriver;
@@ -19,12 +18,10 @@ import org.testng.Assert;
 import org.testng.ITestContext;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.BeforeSuite;
 import utilities.DbManager;
 import utilities.MonitoringMail;
 import utilities.ScreenshotSoftAssert;
 
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.lang.reflect.Method;
@@ -35,7 +32,7 @@ import java.util.Properties;
 public class BasePage {
 
 
-    public WebDriver driver;
+    private static final ThreadLocal<WebDriver> driver = new ThreadLocal<>();
     public String browser;
 
     public WebDriverWait wait;
@@ -49,42 +46,39 @@ public class BasePage {
     @BeforeMethod(alwaysRun = true)
     public void setup(Method method, ITestContext context) {
 
-        if (driver == null) {
+        // load config file for browser and url
+        config = loadConfigFile(Constant.CONFIG_FILE_LOCATION);
 
-            // load config file for browser and url
-            config = loadConfigFile(Constant.CONFIG_FILE_LOCATION);
-
-            // to get browser name from the jenkins job parameters else from the property file
-            if (System.getenv("browser") != null && !System.getenv("browser").isEmpty()) {
-                browser = System.getenv("browser");
-            } else {
-                browser = config.getProperty("browser");
-            }
-
-            // load webDriver based on the browser
-            driver = initBrowser(browser);
-            context.setAttribute("driver", driver);
-
-            //load page objects
-            pages = new Pages(driver);
-
-            // init webDriver wait
-            wait = new WebDriverWait(driver, Duration.ofSeconds(10));
-            log.info("WebDriver wait default time set to : " + Constant.ELEMENT_LOAD_TIMEOUT);
-
-            // load softAssert
-            softAssert = new ScreenshotSoftAssert(driver);
-
-            // load web url
-            driver.get(config.getProperty("testsiteurl"));
-            log.info("Navigated to : " + config.getProperty("testsiteurl"));
-
-            driver.manage().window().maximize();
-
-            // connect to database
-            connectDB();
+        // to get browser name from the jenkins job parameters else from the property file
+        if (System.getenv("browser") != null && !System.getenv("browser").isEmpty()) {
+            browser = System.getenv("browser");
+        } else {
+            browser = config.getProperty("browser");
         }
 
+        // Init driver
+        WebDriver localDriver = initBrowser(browser);
+        setDriver(localDriver);
+        context.setAttribute("driver", getDriver());
+
+        //load page objects
+        pages = new Pages();
+
+        // init webDriver wait
+        wait = new WebDriverWait(getDriver(), Duration.ofSeconds(Constant.ELEMENT_LOAD_TIMEOUT));
+        log.info("WebDriver wait default time set to : " + Constant.ELEMENT_LOAD_TIMEOUT);
+
+        // load softAssert
+        softAssert = new ScreenshotSoftAssert(getDriver());
+
+        // load web url
+        getDriver().get(config.getProperty("testsiteurl"));
+        log.info("Navigated to : " + config.getProperty("testsiteurl"));
+
+        getDriver().manage().window().maximize();
+
+        // connect to database
+        connectDB();
     }
 
     @AfterMethod(alwaysRun = true)
@@ -94,14 +88,26 @@ public class BasePage {
             softAssert.assertAll();
         } catch (AssertionError e) {
             log.error("Soft assert failures occurred: " + e.getMessage());
-            throw e; // Re-throw so TestNG marks test as failed
+            throw e;
         } finally {
-            if (driver != null) {
-                driver.quit();
-                driver = null;
+            WebDriver localDriver = getDriver();
+            if (localDriver != null) {
+                log.info("Quitting driver for thread: " + Thread.currentThread().getId());
+                localDriver.quit();
+                driver.remove();
+            } else {
+                log.warn("Driver was already null for thread: " + Thread.currentThread().getId());
             }
-            log.info("Test execution completed!!!");
+            log.info("Test execution completed for thread: " + Thread.currentThread().getId());
         }
+    }
+
+    public WebDriver getDriver() {
+        return driver.get();
+    }
+
+    public void setDriver(WebDriver driverInstance) {
+        driver.set(driverInstance);
     }
 
     private WebDriver initBrowser(String brow) {
