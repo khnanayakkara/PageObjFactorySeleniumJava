@@ -4,15 +4,15 @@
 
 This is a **frontend test automation framework** built with:
 
-- 🕸️ **Selenium WebDriver** for browser automation
-- ☕ **Java**
-- 🧪 **TestNG** as the test runner
-- 🧱 **Page Object Model** with **Page Factory** for element management
-- 📊 **Allure** for rich test reporting
+-  **Selenium WebDriver** for browser automation
+-  **Java**
+-  **TestNG** as the test runner
+-  **Page Object Model** with **Page Factory** for element management
+-  **Allure** for rich test reporting
 
 ---
 
-## 🚀 **Features**
+## **Features**
 
 - Robust test structure following Page Object Model
 - Easy-to-maintain Page Factory-based locators
@@ -22,7 +22,7 @@ This is a **frontend test automation framework** built with:
 
 ---
 
-## 🛠️ **Tech stack**
+## **Tech stack**
 
 | Tool/Framework  | Version/Usage                           |
 |-----------------|----------------------------------------|
@@ -34,7 +34,7 @@ This is a **frontend test automation framework** built with:
 
 ---
 
-## ⚙️ **Setup instructions**
+## **Setup instructions**
 
 ### ✅ Clone the repo
 
