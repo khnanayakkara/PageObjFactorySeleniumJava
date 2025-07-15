@@ -4,6 +4,8 @@ import constants.Constant;
 import io.github.bonigarcia.wdm.WebDriverManager;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.openqa.selenium.NoSuchElementException;
+import org.openqa.selenium.StaleElementReferenceException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
@@ -14,6 +16,7 @@ import org.openqa.selenium.ie.InternetExplorerDriver;
 import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.safari.SafariDriver;
+import org.openqa.selenium.support.ui.FluentWait;
 import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
@@ -33,6 +36,7 @@ import java.net.URL;
 import java.sql.SQLException;
 import java.time.Duration;
 import java.util.Properties;
+import java.util.function.Function;
 
 public class BasePage {
 
@@ -262,6 +266,32 @@ public class BasePage {
 
         }
 
+    }
+
+    /**
+     * Generic fluent wait for an element.
+     *
+     * @param element      web element
+     * @param timeoutSec   total timeout in seconds
+     * @param pollingSec   polling interval in seconds
+     * @return WebElement when it becomes visible and interactable
+     */
+    public WebElement fluentWait(WebElement element, int timeoutSec, int pollingSec) {
+        FluentWait<WebDriver> wait = new FluentWait<>(getDriver())
+                .withTimeout(Duration.ofSeconds(timeoutSec))
+                .pollingEvery(Duration.ofSeconds(pollingSec))
+                .ignoring(NoSuchElementException.class)
+                .ignoring(StaleElementReferenceException.class);
+
+        return wait.until(new Function<WebDriver, WebElement>() {
+            @Override
+            public WebElement apply(WebDriver driver) {
+                if (element.isDisplayed() && element.isEnabled()) {
+                    return element;
+                }
+                return null;
+            }
+        });
     }
 
 }
